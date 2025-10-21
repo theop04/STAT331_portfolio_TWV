@@ -23,6 +23,10 @@ execute:
 ```{r}
 #| label: wd-1-csv-1
 
+# Lab 3
+
+teacher_evals <- read_csv(here::here("Week 3", "Lab 3","teacher_evals.csv"))
+
 ```
 
 -   `csv` Example 2
@@ -36,6 +40,15 @@ execute:
 
 ```{r}
 #| label: wd-1-xlsx
+
+# PA-4
+
+military <- read_xlsx("gov_spending_per_capita.xlsx",
+                      sheet = "Share of Govt. spending",
+                      skip  = 7,
+                      n_max = 191,
+                      na = c(". .", "xxx", "..")
+                      )
 
 ```
 
@@ -89,6 +102,12 @@ execute:
 
 ```{r}
 #| label: wd-3-string
+
+# Lab 5
+
+person_interview |>
+  filter(address_street_name == "Franklin Ave" & str_detect(name, "Annabel")) |>
+    kable()
 
 ```
 
@@ -150,12 +169,24 @@ execute:
 ```{r}
 #| label: wd-5-left-ex-1
 
+# Lab 4
+ca_childcare <- ca_childcare |>
+  left_join(y = tax_rev,
+             by = join_by(county_name == entity_name, study_year == year))
+
 ```
 
 -   `right_join()` Example 1
 
+#just take one
+
 ```{r}
 #| label: wd-5-right
+
+# Lab 5 (this is changed from the code below -- I switched it from a left join to right join, simply by switching the order of the dataset and the "by" argument)
+
+person_interview <- interview |>
+  right_join(person, by = c("person_id" = "id"))
 
 ```
 
@@ -163,6 +194,11 @@ execute:
 
 ```{r}
 #| label: wd-5-left-right-ex-2
+
+# Lab 5
+
+person_interview <- person |>
+  left_join(interview, by = c("id" = "person_id"))
 
 ```
 
@@ -209,6 +245,31 @@ execute:
 
 ```{r}
 #| label: wd-7-wide
+
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income")
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable()
 
 ```
 
