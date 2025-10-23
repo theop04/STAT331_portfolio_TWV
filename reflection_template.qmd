@@ -74,7 +74,7 @@ teacher_evals_clean  <- teacher_evals |>
         teacher_id  = as.character(teacher_id),
         question_no = as.character(question_no)
       ) |>
-        select(course_id, teacher_id, question_no, no_participants, resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex) 
+        select(course_id, teacher_id, question_no, no_participants, resp_share,    SET_score_avg, percent_failed_cur, academic_degree, seniority, sex) 
 
 ```
 
@@ -121,7 +121,7 @@ USE LAB 4 Q7 BUT REVISE FIRST
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
--   Numeric Example 1
+-   Numeric Example 1F
 
 ```{r}
 #| label: wd-3-numeric-ex-1
@@ -226,14 +226,52 @@ ca_childcare |>
 ```{r}
 #| label: wd-4-numeric-ex-2
 
+# Challenge 4 Data Description 
+
+ca_normalized <- ca_childcare |> 
+  mutate(
+    center_norm = center_cost / base_values$center_cost * 100,
+    family_norm = family_cost / base_values$family_cost * 100,
+    income_norm = median_income / base_values$median_income * 100
+  ) |> 
+  pivot_longer(
+    cols = ends_with("_norm"),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_norm" = "Center-based Cost",
+                      "family_norm" = "Family-based Cost",
+                      "income_norm" = "Household Income")
+  ) 
+
 ```
 
 -   Factor Example 1 (renaming levels)
 
-USE LAB 4 Q7 FOR BOTH BUT CHANGE FIRST
-
 ```{r}
 #| label: wd-4-factor-ex-1
+
+# Lab 4 Question 7
+
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+
+mcsa_plot_data <- ca_childcare |>
+  select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
+    pivot_longer(
+      cols = starts_with("mc_"),
+      names_to = "baby_type",
+      values_to = "cost"
+    ) |>
+      mutate(
+        baby_type = recode(baby_type,
+                           mc_infant = "Infant",
+                           mc_toddler = "Toddler",
+                           mc_preschool = "Preschool"),
+        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+      )
 
 ```
 
@@ -243,6 +281,26 @@ USE LAB 4 Q7 FOR BOTH BUT CHANGE FIRST
 
 ```{r}
 #| label: wd-4-factor-ex-2
+
+# Lab 4 Question 7
+
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+
+mcsa_plot_data <- ca_childcare |>
+  select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
+    pivot_longer(
+      cols = starts_with("mc_"),
+      names_to = "baby_type",
+      values_to = "cost"
+    ) |>
+      mutate(
+        baby_type = recode(baby_type,
+                           mc_infant = "Infant",
+                           mc_toddler = "Toddler",
+                           mc_preschool = "Preschool"),
+        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+      )
 
 ```
 
@@ -446,10 +504,17 @@ ggplot(data = surveys,
 
 -   Example of **dplyr** pipeline
 
-Ask about the next two
-
 ```{r}
 #| label: r-2-2
+
+ggplot(data = surveys,
+       mapping = aes(x = species, y = weight)) +
+  geom_boxplot(outliers = FALSE) +
+  geom_jitter(alpha = 0.5, color = "orange3") +
+  labs(x = "Rodent Species", 
+       y = "Weight (grams)",
+        title = "Distribution of Rodent Weights by Species") +
+  theme(axis.text.x = element_text(angle = 45))
 
 ```
 
@@ -572,12 +637,68 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-2-ex-1
 
+# Lab 4 Question 7
+
+mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
+                                       y = cost,
+                                       color = census_region)) +
+  geom_point() + 
+  geom_smooth() +
+  facet_wrap( ~ baby_type) + 
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2),                        minor_breaks = 2008:2018,
+  ) +
+  coord_cartesian(ylim = c(100, 500)) +
+  scale_color_manual(values = region_colors) +
+  labs(
+    x = "Study Year",
+    y = "",
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    color = "California Region"
+  ) +
+  theme_bw()  +
+  theme(
+    legend.key.size = unit(0.9, "lines"),
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 10),
+    plot.title = element_text(size = 10),
+    panel.spacing = unit(0.7, "lines")
+  )
+
 ```
 
 -   I can modify my colors to be accessible to anyone's eyes
 
 ```{r}
 #| label: dvs-2-ex-2
+
+# Challenge 4 Plot
+
+# REVISED: added a horizontal line to highlight the normalization baseline
+
+ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
+  geom_line(size = 1.2) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_x_continuous(breaks = 2008:2018) +
+  scale_color_manual(values = c(
+    "Center-based Cost" = "#1B9E77",  
+    "Family-based Cost" = "#7570B3",
+    "Household Income" = "#E7298A"  
+  )) +
+  labs(
+    title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
+    subtitle = paste0("Values normalized to ", base_year, " levels"),
+    x = "Year",
+    y = "Value (Index, 2008 = 100)",
+    color = "Type"
+  ) +
+  theme_bw() +
+  theme(
+    plot.subtitle = element_text(size = 11),
+    legend.position = "bottom"
+  )
 
 ```
 
@@ -586,6 +707,17 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-2-ex-3
 
+# Lab 2 Question 4
+
+ggplot(data = surveys,
+       mapping = aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~species, scales = "free")  +
+  labs(x = "Weight (grams)", 
+       y = "", 
+       title = "Relationship between Hindfoot Length and Weight for Rodents",
+       subtitle = "Hindfoot Length (millimeters)")
+
 ```
 
 -   I can modify the text in my plot to be more readable
@@ -593,14 +725,60 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-2-ex-4
 
+# Lab 4 Question 7
+
+mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
+                                       y = cost,
+                                       color = census_region)) +
+  geom_point() + 
+  geom_smooth() +
+  facet_wrap( ~ baby_type) + 
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2),                        minor_breaks = 2008:2018,
+  ) +
+  coord_cartesian(ylim = c(100, 500)) +
+  scale_color_manual(values = region_colors) +
+  labs(
+    x = "Study Year",
+    y = "",
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    color = "California Region"
+  ) +
+  theme_bw()  +
+  theme(
+    legend.key.size = unit(0.9, "lines"),
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 10),
+    plot.title = element_text(size = 10),
+    panel.spacing = unit(0.7, "lines")
+  )
+
 ```
 
 -   I can reorder my legend to align with the colors in my plot
 
-Lab 4 Q7 (revise first)
-
 ```{r}
 #| label: dvs-2-ex-5
+
+# Lab 4 Question 7
+
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+
+mcsa_plot_data <- ca_childcare |>
+  select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
+    pivot_longer(
+      cols = starts_with("mc_"),
+      names_to = "baby_type",
+      values_to = "cost"
+    ) |>
+      mutate(
+        baby_type = recode(baby_type,
+                           mc_infant = "Infant",
+                           mc_toddler = "Toddler",
+                           mc_preschool = "Preschool"),
+        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+      )
 
 ```
 
@@ -611,12 +789,42 @@ Lab 4 Q7 (revise first)
 ```{r}
 #| label: dvs-3-1-ex-1
 
+# Challenge 4 Plot
+
+# REVISED: added a horizontal line to highlight the normalization baseline
+
+ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
+  geom_line(size = 1.2) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_x_continuous(breaks = 2008:2018) +
+  scale_color_manual(values = c(
+    "Center-based Cost" = "#1B9E77",  
+    "Family-based Cost" = "#7570B3",
+    "Household Income" = "#E7298A"  
+  )) +
+  labs(
+    title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
+    subtitle = paste0("Values normalized to ", base_year, " levels"),
+    x = "Year",
+    y = "Value (Index, 2008 = 100)",
+    color = "Type"
+  ) +
+  theme_bw() +
+  theme(
+    plot.subtitle = element_text(size = 11),
+    legend.position = "bottom"
+  )
+
 ```
 
 -   I can use non-standard colors (Example 2)
 
 ```{r}
 #| label: dvs-3-1-ex-2
+
+# Lab 4 Question 7
 
 ```
 
@@ -631,6 +839,34 @@ Lab 4 Q7 (revise first)
 
 ```{r}
 #| label: dvs-3-3
+
+# Challenge 4 Plot
+
+# REVISED: added a horizontal line to highlight the normalization baseline
+
+ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
+  geom_line(size = 1.2) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_x_continuous(breaks = 2008:2018) +
+  scale_color_manual(values = c(
+    "Center-based Cost" = "#1B9E77",  
+    "Family-based Cost" = "#7570B3",
+    "Household Income" = "#E7298A"  
+  )) +
+  labs(
+    title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
+    subtitle = paste0("Values normalized to ", base_year, " levels"),
+    x = "Year",
+    y = "Value (Index, 2008 = 100)",
+    color = "Type"
+  ) +
+  theme_bw() +
+  theme(
+    plot.subtitle = element_text(size = 11),
+    legend.position = "bottom"
+  )
 
 ```
 
@@ -967,7 +1203,7 @@ chisq.test( teacher_evals_compare$set_level, teacher_evals_compare$sen_level)
 
 ## Extending My Thinking
 
-<!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
+<!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? Be specific -->
 
 ## Peer Support & Collaboration
 
