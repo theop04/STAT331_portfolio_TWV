@@ -34,6 +34,12 @@ teacher_evals <- read_csv(here::here("Week 3", "Lab 3","teacher_evals.csv"))
 ```{r}
 #| label: wd-1-csv-2
 
+# REVISED: changed from full path to relative path
+
+# Lab 2
+
+surveys <- read_csv(here::here("Week 2", "Lab 2","surveys.csv"))
+
 ```
 
 -   `xlsx`
@@ -145,6 +151,21 @@ teacher_evals_clean  <- teacher_evals |>
 ```{r}
 #| label: wd-3-character
 
+# REVISED: combined slice_min and slice_max into one function
+
+# Lab 3
+
+teacher_evals_clean |>
+  filter(academic_degree %in% c("dr","prof"))|>
+    group_by(teacher_id) |>
+      summarize(
+        mean_resp_share = mean(resp_share, na.rm = TRUE),
+        degree = first(academic_degree),
+        seniority = first(seniority),
+        sex = first(sex)
+      ) |>
+        slice(c(which.min(mean_resp_share), which.max(mean_resp_share)))
+
 
 ```
 
@@ -218,6 +239,8 @@ USE LAB 4 Q7 FOR BOTH BUT CHANGE FIRST
 
 -   Factor Example 2 (reordering levels)
 
+USE LAB 4 Q7 FOR BOTH BUT CHANGE FIRST
+
 ```{r}
 #| label: wd-4-factor-ex-2
 
@@ -227,6 +250,27 @@ USE LAB 4 Q7 FOR BOTH BUT CHANGE FIRST
 
 ```{r}
 #| label: wd-4-string
+
+# REVISED: changed into using only one mutate function
+
+# Lab 4
+
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County"),
+         census_region = fct_collapse(
+          fct(county_name),
+          "Superior California" = superior_counties,
+          "North Coast" = north_coast_counties,
+          "San Francisco Bay Area" = san_fran_counties,
+          "Northern San Joaquin Valley" = n_san_joaquin_counties,
+          "Central Coast" = central_coast_counties,
+          "Southern San Joaquin Valley" = s_san_joaquin_counties,
+          "Inland Empire" = inland_counties,
+          "Los Angeles County" = la_county,
+          "Orange County" = orange_county,
+          "San Diego-Imperial" = san_diego_imperial_counties
+          )
+        )
 
 ```
 
@@ -253,8 +297,6 @@ ca_childcare <- ca_childcare |>
 
 -   `right_join()` Example 1
 
-#just take one
-
 ```{r}
 #| label: wd-5-right
 
@@ -278,6 +320,8 @@ person_interview <- person |>
 ```
 
 -   `inner_join()` Example 1
+
+WAIT FOR LAB 5 COMMENTS TO BE RELEASED AND THEN DO THESE. ALSO FIND THEM IN THE PRACTICE ACTIVITY.
 
 ```{r}
 #| label: wd-5-inner-ex-1
@@ -388,9 +432,21 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: r-2-1
 
+ggplot(data = surveys,
+       mapping = aes(x = species, y = weight)) +
+  geom_boxplot(outliers = FALSE) +
+  geom_jitter(alpha = 0.5, color = "orange3") +
+  labs(x = "Rodent Species", 
+       y = "Weight (grams)",
+        title = "Distribution of Rodent Weights by Species") +
+  theme(axis.text.x = element_text(angle = 45))
+
+
 ```
 
 -   Example of **dplyr** pipeline
+
+Ask about the next two
 
 ```{r}
 #| label: r-2-2
@@ -406,7 +462,7 @@ The following assignments satisfy the above criteria:
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
 
--   Example (any context)
+-   Example (any context)\
 
 ```{r}
 #| label: r-3-example
@@ -429,12 +485,34 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-1-num
 
+# Lab 2
+
+ggplot(data = surveys,
+       mapping = aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~species, scales = "free")  +
+  labs(x = "Weight (grams)", 
+       y = "", 
+       title = "Relationship between Hindfoot Length and Weight for Rodents",
+       subtitle = "Hindfoot Length (millimeters)")
+
 ```
 
 -   At least one numeric variable and one categorical variable
 
 ```{r}
 #| label: dvs-2-num-cat
+
+# Lab 2
+
+ggplot(data = surveys,
+       mapping = aes(x = species, y = weight)) +
+  geom_boxplot(outliers = FALSE) +
+  geom_jitter(alpha = 0.5, color = "orange3") +
+  labs(x = "Rodent Species", 
+       y = "Weight (grams)",
+        title = "Distribution of Rodent Weights by Species") +
+  theme(axis.text.x = element_text(angle = 45))
 
 ```
 
@@ -443,12 +521,47 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-2-cat
 
+# Challenge 3
+
+# REVISED: changed colors into Valkyries' official team colors :) and used labels_percent instead of percent_format
+
+ggplot(data = teacher_evals_compare,
+       mapping = aes(x = sen_level, fill = set_level)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) +
+  scale_fill_manual(values = c(
+    "excellent" = "#AD96DC",
+    "standard" = "#B9975B"   
+  )) +
+  labs(x = "Years of Experience", 
+       y = "",
+       title = "Evaluation of Teachers' Use of Activities",
+       fill = "Evaluation Rating") +
+  theme_bw() +
+  theme(legend.position = "top")
+
 ```
 
 -   Dates (time series plot)
 
 ```{r}
 #| label: dvs-2-date
+
+# Challenge 4
+
+ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_x_continuous(breaks = 2008:2018) +
+  labs(
+    title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
+    subtitle = paste0("Values normalized to ", base_year, " levels"),
+    x = "Year",
+    y = "Value (Index, 2008 = 100)",
+    color = "Type"
+  ) +
+  theme_bw()
 
 ```
 
@@ -483,6 +596,8 @@ The following assignments satisfy the above criteria:
 ```
 
 -   I can reorder my legend to align with the colors in my plot
+
+Lab 4 Q7 (revise first)
 
 ```{r}
 #| label: dvs-2-ex-5
@@ -654,6 +769,29 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-across
 
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable()
+
 ```
 
 -   using functions from the `map()` family
@@ -739,6 +877,25 @@ ca_childcare |>
 ```{r}
 #| label: pe-4-1
 
+# Challenge 3
+
+# REVISED: changed colors into Valkyries' official team colors :) and used labels_percent instead of percent_format
+
+ggplot(data = teacher_evals_compare,
+       mapping = aes(x = sen_level, fill = set_level)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) + #note: I used label_percent instead of percent_format
+  scale_fill_manual(values = c(
+    "excellent" = "#AD96DC",  
+    "standard" = "#B9975B"  
+  )) +
+  labs(x = "Years of Experience", 
+       y = "",
+       title = "Evaluation of Teachers' Use of Activities",
+       fill = "Evaluation Rating") +
+  theme_bw() +
+  theme(legend.position = "top")
+
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
@@ -773,12 +930,22 @@ ca_childcare |>
 ```{r}
 #| label: dsm-2-1
 
+# Lab 1
+
+t.test(len ~ supp, data = ToothGrowth)
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-2-2
+
+# Lab 2
+
+species_mod <- aov(weight ~ species, data = surveys)
+
+summary(species_mod)
 
 ```
 
@@ -787,6 +954,9 @@ ca_childcare |>
 ```{r}
 #| label: dsm-2-3
 
+# Challenge 3
+
+chisq.test( teacher_evals_compare$set_level, teacher_evals_compare$sen_level)
 ```
 
 ## Revising My Thinking
