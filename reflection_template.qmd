@@ -110,18 +110,34 @@ ca_childcare |>
 
 -   Example selecting columns based on logical values (e.g., `starts_with()`, `ends_with()`, `contains()`, `where()`)
 
-USE LAB 4 Q7 BUT REVISE FIRST
-
 ```{r}
 #| label: wd-2-ex-3
 
+# Lab 4 Question 7
 
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+
+mcsa_plot_data <- ca_childcare |>
+  select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
+    pivot_longer(
+      cols = starts_with("mc_"),
+      names_to = "baby_type",
+      values_to = "cost"
+    ) |>
+      mutate(
+        baby_type = recode(baby_type,
+                           mc_infant = "Infant",
+                           mc_toddler = "Toddler",
+                           mc_preschool = "Preschool"),
+        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+      )
 
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
 
--   Numeric Example 1F
+-   Numeric Example 1
 
 ```{r}
 #| label: wd-3-numeric-ex-1
@@ -142,7 +158,30 @@ teacher_evals_clean  <- teacher_evals |>
 -   Numeric Example 2
 
 ```{r}
-#| label: wd-3-numeric-ex-1
+#| label: wd-3-numeric-ex-2
+
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable()
 
 ```
 
@@ -277,8 +316,6 @@ mcsa_plot_data <- ca_childcare |>
 
 -   Factor Example 2 (reordering levels)
 
-USE LAB 4 Q7 FOR BOTH BUT CHANGE FIRST
-
 ```{r}
 #| label: wd-4-factor-ex-2
 
@@ -379,7 +416,7 @@ person_interview <- person |>
 
 -   `inner_join()` Example 1
 
-WAIT FOR LAB 5 COMMENTS TO BE RELEASED AND THEN DO THESE. ALSO FIND THEM IN THE PRACTICE ACTIVITY.
+WAIT FOR LAB 5 COMMENTS TO BE RELEASED AND THEN DO THESE.
 
 ```{r}
 #| label: wd-5-inner-ex-1
@@ -477,11 +514,12 @@ ca_childcare |>
 
 The following assignments satisfy the above criteria:
 
--   Example 1
--   Example 2
--   Example 3
--   Example 4
--   Example 5
+-   Lab 4
+-   Challenge 4
+-   Challenge 3
+-   Lab 2 (revised
+-   Challenge 1
+-   Challenge 2
 
 **R-2: I can write well documented and tidy code.**
 
@@ -527,7 +565,7 @@ ggplot(data = surveys,
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
 
--   Example (any context)\
+-   Example (any context)
 
 ```{r}
 #| label: r-3-example
@@ -826,12 +864,76 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 
 # Lab 4 Question 7
 
+region_colors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
+
+
+mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
+                                       y = cost,
+                                       color = census_region)) +
+  geom_point() + 
+  geom_smooth() +
+  facet_wrap( ~ baby_type) + 
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2),                          minor_breaks = 2008:2018,
+  ) +
+  coord_cartesian(ylim = c(100, 500)) +
+  scale_color_manual(values = region_colors) +
+  labs(
+    x = "Study Year",
+    y = "",
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    color = "California Region"
+  ) +
+  theme_bw()  +
+  theme(
+    legend.key.size = unit(0.9, "lines"),
+    legend.text = element_text(size = 8),
+    legend.title = element_text(size = 10),
+    plot.title = element_text(size = 10),
+    panel.spacing = unit(0.7, "lines")
+  )
+
 ```
 
 -   I can use annotations (e.g., `geom_text()`)
 
 ```{r}
 #| label: dvs-3-2
+
+# Challenge 4
+
+# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories.
+
+ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
+  geom_line(size = 1.2) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
+  geom_point(size = 2) +
+  geom_text(
+  data = ca_normalized |> group_by(Type) |> slice_max(study_year),
+  aes(label = round(value, 1)),
+  hjust = -0.2,
+  vjust = 0.5,
+  show.legend = FALSE
+) +
+  scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
+  scale_color_manual(values = c(
+    "Center-based Cost" = "#1B9E77",  
+    "Family-based Cost" = "#7570B3",
+    "Household Income" = "#E7298A"  
+  )) +
+  labs(
+    title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
+    subtitle = paste0("Values normalized to ", base_year, " levels"),
+    x = "Year",
+    y = "Value (Index, 2008 = 100)",
+    color = "Type"
+  ) +
+  theme_bw() +
+  theme(
+    plot.subtitle = element_text(size = 11),
+    legend.position = "bottom"
+  )
 
 ```
 
@@ -877,6 +979,21 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-4-summarize
 
+# REVISED: combined slice_min and slice_max into one function
+
+# Lab 3
+
+teacher_evals_clean |>
+  filter(academic_degree %in% c("dr","prof"))|>
+    group_by(teacher_id) |>
+      summarize(
+        mean_resp_share = mean(resp_share, na.rm = TRUE),
+        degree = first(academic_degree),
+        seniority = first(seniority),
+        sex = first(sex)
+      ) |>
+        slice(c(which.min(mean_resp_share), which.max(mean_resp_share)))
+
 ```
 
 -   Example using `across()`
@@ -916,12 +1033,43 @@ ca_childcare |>
 ```{r}
 #| label: dvs-5-1
 
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable()
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-5-2
+
+# Lab 3 Question 9
+
+teacher_evals_clean |>
+  group_by(teacher_id, course_id) |>
+    summarize(num_q = n_distinct(question_no)) |>
+      filter(num_q == 9) |>
+        nrow()
 
 ```
 
@@ -932,6 +1080,30 @@ ca_childcare |>
 ```{r}
 #| label: dvs-6-ex-1
 
+# Challenge 4 Table
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names.
+
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
+
 ```
 
 -   I can modify the text in my table to be more readable (e.g., bold face for column headers)
@@ -939,15 +1111,60 @@ ca_childcare |>
 ```{r}
 #| label: dvs-6-ex-2
 
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names.
+
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
+
 ```
 
 -   I can arrange my table to have an intuitive ordering
 
-Use
-
 ```{r}
 #| label: dvs-6-ex-3
 
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -997,6 +1214,29 @@ ca_childcare |>
 
 ```{r}
 #| label: pe-1-one-call
+
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
+  pivot_longer(
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
+  ) |>
+    kable()
 
 ```
 
@@ -1134,11 +1374,56 @@ ggplot(data = teacher_evals_compare,
 
 ```
 
--   I can connect a data wrangling pipeline into a `ggplot()`
+-   I can connect a data wranglingg pipeline into a `ggplot()`
 
 ```{r}
-#| label: pe-4-2
+#| label: pe-4-2g
 
+# Challenge 4
+
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns) and piped the dataset directly into ggplot for clarity
+
+ca_normalized <- ca_childcare |> 
+  mutate(
+    center_norm = center_cost / base_values$center_cost * 100,
+    family_norm = family_cost / base_values$family_cost * 100,
+    income_norm = median_income / base_values$median_income * 100
+  ) |> 
+  pivot_longer(
+    cols = ends_with("_norm"),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_norm" = "Center-based Cost",
+                      "family_norm" = "Family-based Cost",
+                      "income_norm" = "Household Income")
+  ) |>
+    ggplot(aes(x = study_year, y = value, color = Type)) +
+    geom_line(size = 1.2) +
+    geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
+    geom_point(size = 2) +
+    scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+    scale_x_continuous(breaks = 2008:2018) +
+    scale_color_manual(values = c(
+      "Center-based Cost" = "#1B9E77",  
+      "Family-based Cost" = "#7570B3",
+      "Household Income" = "#E7298A"  
+    )) +
+    labs(
+      title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
+      subtitle = paste0("Values normalized to ", base_year, " levels"),
+      x = "Year",
+      y = "Value (Index, 2008 = 100)",
+      color = "Type"
+    ) +
+    theme_bw() +
+    theme(
+      plot.subtitle = element_text(size = 11),
+      legend.position = "bottom"
+    )
+  
 ```
 
 ## Data Simulation & Statisical Models
