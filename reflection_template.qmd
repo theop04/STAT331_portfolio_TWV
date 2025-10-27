@@ -226,6 +226,20 @@ person_interview |>
 ```{r}
 #| label: wd-3-date
 
+# Lab 5 Mastermind filter
+
+facebook_event_checkin |>
+  filter(
+    event_name == "SQL Symphony Concert",
+    ymd(date) %within% interval(ymd("2017-12-01"), ymd("2017-12-31"))
+  ) |>
+  count(person_id, name = "visits") |>
+  filter(visits >= 3) |>
+  inner_join(person, by = c("person_id" = "id")) |>
+  inner_join(drivers_license, by = c("license_id" = "id")) |>
+  filter(hair_color == "red", height >= 65, height <= 67) |>
+  kable()
+
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -374,6 +388,15 @@ ca_childcare <- ca_childcare |>
 ```{r}
 #| label: wd-4-date
 
+# REVISED: converted to lubridate format from stadard integer date
+
+# Lab 5 filtering
+
+crime_scene_report |>
+  mutate(date = ymd(date)) |>
+    filter(month(date) == 1, year(date) == 2018, day(date) == 15, type == "murder", city == "SQL City") |>
+      kable()
+
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -416,10 +439,23 @@ person_interview <- person |>
 
 -   `inner_join()` Example 1
 
-WAIT FOR LAB 5 COMMENTS TO BE RELEASED AND THEN DO THESE.
-
 ```{r}
 #| label: wd-5-inner-ex-1
+
+# Lab 5 Mastermind filter
+
+facebook_event_checkin |>
+  filter(
+    event_name == "SQL Symphony Concert",
+    ymd(date) %within% interval(ymd("2017-12-01"), ymd("2017-12-31"))
+  ) |>
+  count(person_id, name = "visits") |>
+  filter(visits >= 3) |>
+  inner_join(person, by = c("person_id" = "id")) |>
+  inner_join(drivers_license, by = c("license_id" = "id")) |>
+  filter(hair_color == "red", height >= 65, height <= 67) |>
+  kable()
+
 
 ```
 
@@ -427,6 +463,13 @@ WAIT FOR LAB 5 COMMENTS TO BE RELEASED AND THEN DO THESE.
 
 ```{r}
 #| label: wd-5-inner-ex-2
+
+# Lab 5, getting the killer's transcript
+
+interview |>
+  inner_join(filter(person, name == "Jeremy Bowers"), by = c("person_id" = "id")) |>
+  select(transcript) |> 
+    kable()
 
 ```
 
@@ -437,12 +480,29 @@ WAIT FOR LAB 5 COMMENTS TO BE RELEASED AND THEN DO THESE.
 ```{r}
 #| label: wd-6-semi
 
+# Lab 5 filtering join
+
+gym_member_full <- get_fit_now_member |>
+  filter(membership_status == "gold") |>
+  semi_join(
+    get_fit_now_check_in |> filter(check_in_date == 20180109),
+    by = c("id" = "membership_id")
+  )
+
+gym_member_full |>
+  kable()
+
 ```
 
 -   `anti_join()`
 
 ```{r}
 #| label: wd-6-anti
+
+# Note: this was not used in any of the labs, but one potential way to use anti_join is highlighted below. The new dataset would contain  people with gym access who weren’t questioned by police, which potentially could be useful in another investigation.
+
+gym_no_interview <- get_fit_now_member |>
+  anti_join(interview, by = c("id" = "person_id"))
 
 ```
 
