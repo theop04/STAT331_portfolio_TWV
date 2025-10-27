@@ -23,7 +23,7 @@ execute:
 ```{r}
 #| label: wd-1-csv-1
 
-# Lab 3
+# Lab 3 Question 2
 
 teacher_evals <- read_csv(here::here("Week 3", "Lab 3","teacher_evals.csv"))
 
@@ -36,7 +36,7 @@ teacher_evals <- read_csv(here::here("Week 3", "Lab 3","teacher_evals.csv"))
 
 # REVISED: changed from full path to relative path
 
-# Lab 2
+# Lab 2 Question 1
 
 surveys <- read_csv(here::here("Week 2", "Lab 2","surveys.csv"))
 
@@ -65,7 +65,7 @@ military <- read_xlsx("gov_spending_per_capita.xlsx",
 ```{r}
 #| label: wd-2-ex-1
 
-# Lab 3
+# Lab 3 Question 5
 
 teacher_evals_clean  <- teacher_evals |>
   rename(sex = gender) |>
@@ -83,7 +83,7 @@ teacher_evals_clean  <- teacher_evals |>
 ```{r}
 #| label: wd-2-ex-2
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -115,7 +115,7 @@ ca_childcare |>
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
@@ -125,11 +125,12 @@ mcsa_plot_data <- ca_childcare |>
       values_to = "cost"
     ) |>
       mutate(
-        baby_type = recode(baby_type,
-                           mc_infant = "Infant",
-                           mc_toddler = "Toddler",
-                           mc_preschool = "Preschool"),
-        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        baby_type = case_when(
+          baby_type == "mc_infant" ~ "Infant",
+          baby_type == "mc_toddler" ~ "Toddler",
+          baby_type == "mc_preschool" ~ "Preschool"
+        ), 
+        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
         census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
       )
 
@@ -142,7 +143,7 @@ mcsa_plot_data <- ca_childcare |>
 ```{r}
 #| label: wd-3-numeric-ex-1
 
-# Lab 3
+# Lab 3 Question 5
 
 teacher_evals_clean  <- teacher_evals |>
   rename(sex = gender) |>
@@ -160,7 +161,7 @@ teacher_evals_clean  <- teacher_evals |>
 ```{r}
 #| label: wd-3-numeric-ex-2
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -192,7 +193,7 @@ ca_childcare |>
 
 # REVISED: combined slice_min and slice_max into one function
 
-# Lab 3
+# Lab 3 Question 12
 
 teacher_evals_clean |>
   filter(academic_degree %in% c("dr","prof"))|>
@@ -213,7 +214,7 @@ teacher_evals_clean |>
 ```{r}
 #| label: wd-3-string
 
-# Lab 5
+# Lab 5 Witness 2
 
 person_interview |>
   filter(address_street_name == "Franklin Ave" & str_detect(name, "Annabel")) |>
@@ -249,7 +250,7 @@ facebook_event_checkin |>
 ```{r}
 #| label: wd-4-numeric-ex-1
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -308,7 +309,7 @@ ca_normalized <- ca_childcare |>
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
@@ -318,11 +319,12 @@ mcsa_plot_data <- ca_childcare |>
       values_to = "cost"
     ) |>
       mutate(
-        baby_type = recode(baby_type,
-                           mc_infant = "Infant",
-                           mc_toddler = "Toddler",
-                           mc_preschool = "Preschool"),
-        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        baby_type = case_when(
+          baby_type == "mc_infant" ~ "Infant",
+          baby_type == "mc_toddler" ~ "Toddler",
+          baby_type == "mc_preschool" ~ "Preschool"
+        ), 
+        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
         census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
       )
 
@@ -335,7 +337,7 @@ mcsa_plot_data <- ca_childcare |>
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
@@ -345,11 +347,12 @@ mcsa_plot_data <- ca_childcare |>
       values_to = "cost"
     ) |>
       mutate(
-        baby_type = recode(baby_type,
-                           mc_infant = "Infant",
-                           mc_toddler = "Toddler",
-                           mc_preschool = "Preschool"),
-        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        baby_type = case_when(
+          baby_type == "mc_infant" ~ "Infant",
+          baby_type == "mc_toddler" ~ "Toddler",
+          baby_type == "mc_preschool" ~ "Preschool"
+        ), 
+        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
         census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
       )
 
@@ -362,7 +365,7 @@ mcsa_plot_data <- ca_childcare |>
 
 # REVISED: changed into using only one mutate function
 
-# Lab 4
+# Lab 4 Question 4
 
 ca_childcare <- ca_childcare |> 
   mutate(county_name = str_remove(county_name, " County"),
@@ -406,7 +409,8 @@ crime_scene_report |>
 ```{r}
 #| label: wd-5-left-ex-1
 
-# Lab 4
+# Lab 4 Question 2
+
 ca_childcare <- ca_childcare |>
   left_join(y = tax_rev,
              by = join_by(county_name == entity_name, study_year == year))
@@ -430,7 +434,7 @@ person_interview <- interview |>
 ```{r}
 #| label: wd-5-left-right-ex-2
 
-# Lab 5
+# Lab 5 Adding interviews
 
 person_interview <- person |>
   left_join(interview, by = c("id" = "person_id"))
@@ -464,7 +468,7 @@ facebook_event_checkin |>
 ```{r}
 #| label: wd-5-inner-ex-2
 
-# Lab 5, getting the killer's transcript
+# Lab 5 getting the killer's transcript
 
 interview |>
   inner_join(filter(person, name == "Jeremy Bowers"), by = c("person_id" = "id")) |>
@@ -481,6 +485,8 @@ interview |>
 #| label: wd-6-semi
 
 # Lab 5 filtering join
+
+# Revised: changed from 
 
 gym_member_full <- get_fit_now_member |>
   filter(membership_status == "gold") |>
@@ -513,7 +519,7 @@ gym_no_interview <- get_fit_now_member |>
 ```{r}
 #| label: wd-7-long
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -543,7 +549,7 @@ ca_childcare |>
 ```{r}
 #| label: wd-7-wide
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -577,7 +583,7 @@ The following assignments satisfy the above criteria:
 -   Lab 4
 -   Challenge 4
 -   Challenge 3
--   Lab 2 (revised
+-   Lab 2
 -   Challenge 1
 -   Challenge 2
 
@@ -587,6 +593,8 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: r-2-1
+
+# Lab 2 Questions 10-13
 
 ggplot(data = surveys,
        mapping = aes(x = species, y = weight)) +
@@ -604,6 +612,8 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: r-2-2
+
+# Lab 2 Questions 10-13
 
 ggplot(data = surveys,
        mapping = aes(x = species, y = weight)) +
@@ -648,7 +658,7 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-1-num
 
-# Lab 2
+# Lab 2 Question 4
 
 ggplot(data = surveys,
        mapping = aes(x = weight, y = hindfoot_length)) +
@@ -666,7 +676,7 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-num-cat
 
-# Lab 2
+# Lab 2 Questions 10-13
 
 ggplot(data = surveys,
        mapping = aes(x = species, y = weight)) +
@@ -684,7 +694,7 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-cat
 
-# Challenge 3
+# Challenge 3 Question 2
 
 # REVISED: changed colors into Valkyries' official team colors :) and used labels_percent instead of percent_format
 
@@ -710,13 +720,21 @@ ggplot(data = teacher_evals_compare,
 ```{r}
 #| label: dvs-2-date
 
-# Challenge 4
+# Challenge 4 Plot
+
+# REVISED: added a horizontal line to highlight the normalization baseline
 
 ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   geom_line(size = 1.2) +
+  geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
   geom_point(size = 2) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018) +
+  scale_color_manual(values = c(
+    "Center-based Cost" = "#1B9E77",  
+    "Family-based Cost" = "#7570B3",
+    "Household Income" = "#E7298A"  
+  )) +
   labs(
     title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
     subtitle = paste0("Values normalized to ", base_year, " levels"),
@@ -724,7 +742,11 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
     y = "Value (Index, 2008 = 100)",
     color = "Type"
   ) +
-  theme_bw()
+  theme_bw() +
+  theme(
+    plot.subtitle = element_text(size = 11),
+    legend.position = "bottom"
+  )
 
 ```
 
@@ -860,7 +882,7 @@ mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend.
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
@@ -870,11 +892,12 @@ mcsa_plot_data <- ca_childcare |>
       values_to = "cost"
     ) |>
       mutate(
-        baby_type = recode(baby_type,
-                           mc_infant = "Infant",
-                           mc_toddler = "Toddler",
-                           mc_preschool = "Preschool"),
-        baby_type = factor(baby_type, levels = c("Infant", "Toddler", "Preschool")),
+        baby_type = case_when(
+          baby_type == "mc_infant" ~ "Infant",
+          baby_type == "mc_toddler" ~ "Toddler",
+          baby_type == "mc_preschool" ~ "Preschool"
+        ), 
+        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
         census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
       )
 
@@ -960,7 +983,7 @@ mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
 ```{r}
 #| label: dvs-3-2
 
-# Challenge 4
+# Challenge 4 Plot
 
 # REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories.
 
@@ -1041,7 +1064,7 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 
 # REVISED: combined slice_min and slice_max into one function
 
-# Lab 3
+# Lab 3 Question 12
 
 teacher_evals_clean |>
   filter(academic_degree %in% c("dr","prof"))|>
@@ -1061,7 +1084,7 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-4-across
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1093,7 +1116,7 @@ ca_childcare |>
 ```{r}
 #| label: dvs-5-1
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1171,7 +1194,7 @@ ca_childcare |>
 ```{r}
 #| label: dvs-6-ex-2
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names.
 
@@ -1202,7 +1225,7 @@ ca_childcare |>
 ```{r}
 #| label: dvs-6-ex-3
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1241,7 +1264,7 @@ ca_childcare |>
 ```{r}
 #| label: dvs-7-ex-2
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1275,7 +1298,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-one-call
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1305,7 +1328,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-across
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1367,7 +1390,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-3-across
 
-# Challenge 4
+# Challenge 4 Table
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
@@ -1413,7 +1436,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-4-1
 
-# Challenge 3
+# Challenge 3 Question 2
 
 # REVISED: changed colors into Valkyries' official team colors :) and used labels_percent instead of percent_format
 
@@ -1439,11 +1462,11 @@ ggplot(data = teacher_evals_compare,
 ```{r}
 #| label: pe-4-2g
 
-# Challenge 4
+# Challenge 4 Plot
 
 # REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns) and piped the dataset directly into ggplot for clarity
 
-ca_normalized <- ca_childcare |> 
+ca_childcare |> 
   mutate(
     center_norm = center_cost / base_values$center_cost * 100,
     family_norm = family_cost / base_values$family_cost * 100,
@@ -1511,7 +1534,7 @@ ca_normalized <- ca_childcare |>
 ```{r}
 #| label: dsm-2-1
 
-# Lab 1
+# Lab 1 T-Test (Q10)
 
 t.test(len ~ supp, data = ToothGrowth)
 
@@ -1522,7 +1545,7 @@ t.test(len ~ supp, data = ToothGrowth)
 ```{r}
 #| label: dsm-2-2
 
-# Lab 2
+# Lab 2 Question 17
 
 species_mod <- aov(weight ~ species, data = surveys)
 
@@ -1535,7 +1558,7 @@ summary(species_mod)
 ```{r}
 #| label: dsm-2-3
 
-# Challenge 3
+# Challenge 3 Question 3
 
 chisq.test( teacher_evals_compare$set_level, teacher_evals_compare$sen_level)
 ```
@@ -1544,14 +1567,32 @@ chisq.test( teacher_evals_compare$set_level, teacher_evals_compare$sen_level)
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
-<!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
+Throughout the course, whenever I received a "Growing" on a Lab or Challenge ( and it was not a trivial error) I went back and reflected on what I could have done better, and changed the code, and wrote out a short blurb on what I fixed and why. In all the examples where I revised a code chunk, either submitting an assignment for additional feedback, or simply changing it for the portfolio, I made sure to highlight the changes and any growing points that were not implied. Revising my mistakes helped me revisit areas that I was still improving on, further helping my overall learning.
 
 ## Extending My Thinking
 
-<!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? Be specific -->
+<!-- How did you extend your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? Be specific -->
+
+In every assignment, for each question, I made sure to build a mental roadmap of a potential pipeline that would solve the problem as efficiently as possible. I made sure to always go above and beyond on the challenges, especially the ones that were open to interpretation, like challenge 2 and challenge 4 (receiving exemplary challenges for both). My favorite example was challenge 4, as I tried to make a realistic and professional report, answering a research question I was genuinely interested in, and in the end, came to a very interesting conclusion through both my table and graph.
 
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
+Every week, one of the assignments I would spend the most time on was the peer reviews, as I enjoyed reading other people's reports, giving feedback, and also learning things from my peers. One example of a peer review I liked was for Lab 3:\
+\
+"You did a really nice job writing efficient dplyr pipelines throughout the lab, and your code gets the job done cleanly. One small thing that could make it even easier to read is adding a little more spacing around logical expressions in Q5 (and a few others) and indenting each function call consistently (ie Q7).\
+
+I really like your use of kable() to make the tables look professional. Just a reminder that the variable should be referenced as sex instead of gender to match the cleaned dataset in the desc (Q7).\
+
+I like that you included the reference for the grouping functions in Q9, which makes your thought process clear.\
+
+Your use of slice() to pull the min and max values in Q10 and Q11 was very elegant. One thing to watch for is that there might be multiple instructors tied for the top or bottom values (for Q10 I think there were more than one teacher with a perfect rating and for Q11, I think there were multiple teachers with fail rate of 0), so including all tied cases would make the results more complete.\
+
+Overall, your report is very nicely formatted, with a sleek layout and thoughtful use of packages. The minor spacing and formatting tweaks above are just small stylistic points; overall great job!!"
+
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+Throughout the pair-programming practice activities, I always followed the guidelines and rules two distinct roles. When I was the typer, I made sure to only listen to my peer, asking clarifying questions when needed. When my partner was the typer, I tried to express my thoughts in a way that was as unambiguous as possible.
+
+Both of these were difficult to do initially, as I had to hold myself back from coding the solution that I had thought of, as well as explaining my thoughts verbally as code. Especially the first one was difficult, as I am used to working independently on coding assignments in my other classes, but I also think that is where I grew the most. Frequently, my peer would have a different approach to the problem, and more often than not it would work, and I would learn something new.
