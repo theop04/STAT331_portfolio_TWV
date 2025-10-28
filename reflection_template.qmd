@@ -102,7 +102,7 @@ ca_childcare |>
                       "median_income" = "Household Income"),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) # here
   ) |>
     kable()
 
@@ -582,10 +582,10 @@ The following assignments satisfy the above criteria:
 
 -   Lab 4
 -   Challenge 4
--   Challenge 3
--   Lab 2
+-   Challenge 3 (revised bar plot question)
 -   Challenge 1
 -   Challenge 2
+-   Lab 2 (revised to use relative path)
 
 **R-2: I can write well documented and tidy code.**
 
@@ -639,6 +639,17 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: r-3-example
+
+# Lab 3 Question 5
+
+teacher_evals_clean  <- teacher_evals |>
+  rename(sex = gender) |>
+    filter(no_participants >= 10) |>
+      mutate(
+        teacher_id  = as.character(teacher_id),
+        question_no = as.character(question_no)
+      ) |>
+        select(course_id, teacher_id, question_no, no_participants, resp_share,    SET_score_avg, percent_failed_cur, academic_degree, seniority, sex) 
 
 ```
 
@@ -1567,7 +1578,7 @@ chisq.test( teacher_evals_compare$set_level, teacher_evals_compare$sen_level)
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
-Throughout the course, whenever I received a "Growing" on a Lab or Challenge ( and it was not a trivial error) I went back and reflected on what I could have done better, and changed the code, and wrote out a short blurb on what I fixed and why. In all the examples where I revised a code chunk, either submitting an assignment for additional feedback, or simply changing it for the portfolio, I made sure to highlight the changes and any growing points that were not implied. Revising my mistakes helped me revisit areas that I was still improving on, further helping my overall learning.
+Throughout the course, whenever I received a "Growing" on a Lab or Challenge (and it was not a trivial fix) I went back and reflected on what I could have done better, changed the code, and wrote out a short blurb on what I fixed and why. In all the examples where I revised a code chunk, either submitting an assignment for additional feedback, or simply changing it for the portfolio, I made sure to highlight the changes and any growing points that were not implied. Revising my mistakes helped me revisit areas that I was still improving on, further helping my overall learning.
 
 ## Extending My Thinking
 
