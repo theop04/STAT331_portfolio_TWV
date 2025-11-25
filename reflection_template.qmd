@@ -47,14 +47,7 @@ surveys <- read_csv(here::here("Week 2", "Lab 2","surveys.csv"))
 ```{r}
 #| label: wd-1-xlsx
 
-# PA-4
-
-military <- read_xlsx("gov_spending_per_capita.xlsx",
-                      sheet = "Share of Govt. spending",
-                      skip  = 7,
-                      n_max = 191,
-                      na = c(". .", "xxx", "..")
-                      )
+# need to find
 
 ```
 
@@ -631,6 +624,36 @@ ggplot(data = surveys,
 ```{r}
 #| label: r-2-3
 
+# Lab 8 Question 3
+
+create_scatter <- function(df, x_var, y_var, color_var){
+  
+  x_label <- make_label({{x_var}})
+  y_label <- make_label({{y_var}})
+  color_label <- make_label({{color_var}})
+  
+  
+  
+  plot_title <- rlang::englue("Scatterplot of {x_label} vs. {y_label}, colored by {color_label}")
+  
+  df |>
+    ggplot(
+      mapping = aes(x = {{x_var}}, 
+                    y = {{y_var}},
+                    color = {{color_var}}
+                    )
+    ) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE) +
+    labs(
+      title = plot_title,
+      x = x_label,
+      y = y_label,
+      color = color_label
+    ) +
+    theme_bw()
+}
+
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -657,6 +680,28 @@ teacher_evals_clean  <- teacher_evals |>
 
 ```{r}
 #| label: r-3-function-stops
+
+# Lab 8 Question 4
+
+style_plot <- function(plot, 
+                       theme_fn = theme_bw, 
+                       palette = brewer.pal(8, "Accent"), 
+                       aesthetic = "fill"){
+  
+  if(!aesthetic %in% c("fill", "color")) {
+    stop("`aesthetic` must be either 'fill' or 'color'.")
+  }
+  
+  plot <- plot + theme_fn()
+  
+  if (aesthetic == "fill") {
+    plot <- plot + scale_fill_manual(values = palette)
+  } else {
+    plot <- plot + scale_color_manual(values = palette)
+  }
+  
+  return(plot)
+}
 
 ```
 
@@ -1268,6 +1313,10 @@ ca_childcare |>
 ```{r}
 #| label: dvs-7-ex-1
 
+# Lab 9 Question 8
+
+
+
 ```
 
 -   I can modify the layout of my table to be more readable (e.g., `pivot_longer()` or `pivot_wider()`)
@@ -1369,6 +1418,9 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-map-1
 
+# Lab 9 Question 4
+
+
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -1378,6 +1430,30 @@ ca_childcare |>
 ```{r}
 #| label: pe-2-1
 
+# Lab 8 Question 4
+
+library(RColorBrewer)
+
+style_plot <- function(plot, 
+                       theme_fn = theme_bw, 
+                       palette = brewer.pal(8, "Accent"), 
+                       aesthetic = "fill"){
+  
+  if(!aesthetic %in% c("fill", "color")) {
+    stop("`aesthetic` must be either 'fill' or 'color'.")
+  }
+  
+  plot <- plot + theme_fn()
+  
+  if (aesthetic == "fill") {
+    plot <- plot + scale_fill_manual(values = palette)
+  } else {
+    plot <- plot + scale_color_manual(values = palette)
+  }
+  return(plot)
+}
+
+
 ```
 
 -   Example 2: Function that operates on data frames
@@ -1385,12 +1461,38 @@ ca_childcare |>
 ```{r}
 #| label: pe-2-2
 
+# Lab 8 Question 2
+
+pivot_table <- function(df, row_var, col_var){
+  if(!is.data.frame(df)) {
+    stop("Input needs to be a data frame")
+  }
+  
+  df |>
+    count({{row_var}}, {{col_var}}) |>
+    pivot_wider(
+      names_from = {{col_var}},
+      values_from = n,
+      values_fill = 0
+    )
+}
+
 ```
 
 -   Example 3: Function that operates on vectors *or* data frames
 
 ```{r}
 #| label: pe-2-3
+
+# Lab 8 Question 3
+
+make_label <- function(var) {
+  replace_units <- c(" Mm" = " (mm)", " G" = " (g)")
+  var_label <- as_label(ensym(var))
+  var_label <- str_to_title(str_replace_all(var_label, "_", " "))
+  str_replace_all(var_label, replace_units)
+}
+
 
 ```
 
@@ -1431,12 +1533,16 @@ ca_childcare |>
 ```{r}
 #| label: pe-3-map-1
 
+# Lab 9 Question 7
+
 ```
 
 -   using a `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
 
 ```{r}
 #| label: pe-3-map-2
+
+# Make one up? ask teacher
 
 ```
 
@@ -1468,7 +1574,7 @@ ggplot(data = teacher_evals_compare,
 
 ```
 
--   I can connect a data wranglingg pipeline into a `ggplot()`
+-   I can connect a data wrangling pipeline into a `ggplot()`
 
 ```{r}
 #| label: pe-4-2g
@@ -1529,12 +1635,16 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-1
 
+# Lab 10 Question 8
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-1-2
+
+# Lab 10 Question 1
 
 ```
 
@@ -1545,7 +1655,7 @@ ca_childcare |>
 ```{r}
 #| label: dsm-2-1
 
-# Lab 1 T-Test (Q10)
+# Lab 1 T-Test Question 10
 
 t.test(len ~ supp, data = ToothGrowth)
 
