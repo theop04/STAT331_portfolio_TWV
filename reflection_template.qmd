@@ -47,7 +47,7 @@ surveys <- read_csv(here::here("Week 2", "Lab 2","surveys.csv"))
 ```{r}
 #| label: wd-1-xlsx
 
-# need to find
+# need to find??
 
 ```
 
@@ -108,24 +108,24 @@ ca_childcare |>
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
-    pivot_longer(
-      cols = starts_with("mc_"),
-      names_to = "baby_type",
-      values_to = "cost"
-    ) |>
-      mutate(
-        baby_type = case_when(
-          baby_type == "mc_infant" ~ "Infant",
-          baby_type == "mc_toddler" ~ "Toddler",
-          baby_type == "mc_preschool" ~ "Preschool"
-        ), 
-        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
-        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
-      )
+  pivot_longer(
+    cols = starts_with("mc_"),
+    names_to = "baby_type",
+    values_to = "cost"
+  ) |>
+  mutate(
+    baby_type = fct_recode(baby_type,
+      "Infant" = "mc_infant",
+      "Toddler" = "mc_toddler",
+      "Preschool" = "mc_preschool"
+    ),
+    baby_type = fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
+    census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+  )
 
 ```
 
@@ -273,25 +273,7 @@ ca_childcare |>
 ```{r}
 #| label: wd-4-numeric-ex-2
 
-# Challenge 4 Data Description 
-
-ca_normalized <- ca_childcare |> 
-  mutate(
-    center_norm = center_cost / base_values$center_cost * 100,
-    family_norm = family_cost / base_values$family_cost * 100,
-    income_norm = median_income / base_values$median_income * 100
-  ) |> 
-  pivot_longer(
-    cols = ends_with("_norm"),
-    names_to = "Type",
-    values_to = "value"
-  ) |> 
-  mutate(
-    Type = recode(Type,
-                      "center_norm" = "Center-based Cost",
-                      "family_norm" = "Family-based Cost",
-                      "income_norm" = "Household Income")
-  ) 
+# Need smth else (maybe -- check previous too if cant find any)
 
 ```
 
@@ -302,24 +284,24 @@ ca_normalized <- ca_childcare |>
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to fct_recode from recode (as it is in forcats and not deprecated).
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
-    pivot_longer(
-      cols = starts_with("mc_"),
-      names_to = "baby_type",
-      values_to = "cost"
-    ) |>
-      mutate(
-        baby_type = case_when(
-          baby_type == "mc_infant" ~ "Infant",
-          baby_type == "mc_toddler" ~ "Toddler",
-          baby_type == "mc_preschool" ~ "Preschool"
-        ), 
-        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
-        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
-      )
+  pivot_longer(
+    cols = starts_with("mc_"),
+    names_to = "baby_type",
+    values_to = "cost"
+  ) |>
+  mutate(
+    baby_type = fct_recode(baby_type,
+      "Infant" = "mc_infant",
+      "Toddler" = "mc_toddler",
+      "Preschool" = "mc_preschool"
+    ),
+    baby_type = fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
+    census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+  )
 
 ```
 
@@ -330,24 +312,24 @@ mcsa_plot_data <- ca_childcare |>
 
 # Lab 4 Question 7
 
-# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to case_when from recode.
+# REVISED: changed to using fct_reorder2 instead of hardcoding the order of the legend. Also changed to fct_recode from recode (as it is in forcats and not deprecated).
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
-    pivot_longer(
-      cols = starts_with("mc_"),
-      names_to = "baby_type",
-      values_to = "cost"
-    ) |>
-      mutate(
-        baby_type = case_when(
-          baby_type == "mc_infant" ~ "Infant",
-          baby_type == "mc_toddler" ~ "Toddler",
-          baby_type == "mc_preschool" ~ "Preschool"
-        ), 
-        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
-        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
-      )
+  pivot_longer(
+    cols = starts_with("mc_"),
+    names_to = "baby_type",
+    values_to = "cost"
+  ) |>
+  mutate(
+    baby_type = fct_recode(baby_type,
+      "Infant" = "mc_infant",
+      "Toddler" = "mc_toddler",
+      "Preschool" = "mc_preschool"
+    ),
+    baby_type = fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
+    census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+  )
 
 ```
 
@@ -376,6 +358,8 @@ ca_childcare <- ca_childcare |>
           "San Diego-Imperial" = san_diego_imperial_counties
           )
         )
+
+# NEED TO REPLACE THIS ONE
 
 ```
 
@@ -415,10 +399,10 @@ ca_childcare <- ca_childcare |>
 ```{r}
 #| label: wd-5-right
 
-# Lab 5 (this is changed from the code below -- I switched it from a left join to right join, simply by switching the order of the dataset and the "by" argument)
+# Lab 5 (this is changed from the code below -- I switched it from a left join to right join, simply by switching the order of the dataset and the "by" argument). Also, changed to join_by from by = vector.
 
 person_interview <- interview |>
-  right_join(person, by = c("person_id" = "id"))
+  right_join(person, join_by(id = person_id))
 
 ```
 
@@ -429,8 +413,10 @@ person_interview <- interview |>
 
 # Lab 5 Adding interviews
 
+# Revised: changed to join_by from by = vector
+
 person_interview <- person |>
-  left_join(interview, by = c("id" = "person_id"))
+  left_join(interview, join_by(id = person_id))
 
 ```
 
@@ -441,6 +427,8 @@ person_interview <- person |>
 
 # Lab 5 Mastermind filter
 
+# Revised: changed to join_by from by = vector
+
 facebook_event_checkin |>
   filter(
     event_name == "SQL Symphony Concert",
@@ -448,8 +436,8 @@ facebook_event_checkin |>
   ) |>
   count(person_id, name = "visits") |>
   filter(visits >= 3) |>
-  inner_join(person, by = c("person_id" = "id")) |>
-  inner_join(drivers_license, by = c("license_id" = "id")) |>
+  inner_join(person, join_by(person_id == id)) |>
+  inner_join(drivers_license, join_by(license_id == id)) |>
   filter(hair_color == "red", height >= 65, height <= 67) |>
   kable()
 
@@ -463,10 +451,14 @@ facebook_event_checkin |>
 
 # Lab 5 getting the killer's transcript
 
-interview |>
-  inner_join(filter(person, name == "Jeremy Bowers"), by = c("person_id" = "id")) |>
-  select(transcript) |> 
-    kable()
+# Revised: removed the nested function and changed to join_by
+
+person |>
+  filter(name == "Jeremy Bowers") |>
+  inner_join(interview, join_by(id == person_id)) |>
+  select(transcript) |>
+  kable()
+
 
 ```
 
@@ -479,17 +471,15 @@ interview |>
 
 # Lab 5 filtering join
 
-# Revised: changed from 
+# Revised: changed from inner join to semi join. Removed nested function by creating an intermediate object. Updated to use join_by().
 
-gym_member_full <- get_fit_now_member |>
+check_ins_jan9 <- get_fit_now_check_in |>
+  filter(check_in_date == 20180109)
+
+get_fit_now_member |>
   filter(membership_status == "gold") |>
-  semi_join(
-    get_fit_now_check_in |> filter(check_in_date == 20180109),
-    by = c("id" = "membership_id")
-  )
-
-gym_member_full |>
-  kable()
+  semi_join(check_ins_jan9, join_by(id == membership_id)) |>
+    kable()
 
 ```
 
@@ -502,6 +492,8 @@ gym_member_full |>
 
 gym_no_interview <- get_fit_now_member |>
   anti_join(interview, by = c("id" = "person_id"))
+
+# maybe find a diff example?
 
 ```
 
@@ -579,6 +571,8 @@ The following assignments satisfy the above criteria:
 -   Challenge 1
 -   Challenge 2
 -   Lab 2 (revised to use relative path)
+-   Lab 8
+-   (maybe 9/10?)
 
 **R-2: I can write well documented and tidy code.**
 
@@ -725,6 +719,7 @@ ggplot(data = surveys,
        title = "Relationship between Hindfoot Length and Weight for Rodents",
        subtitle = "Hindfoot Length (millimeters)")
 
+
 ```
 
 -   At least one numeric variable and one categorical variable
@@ -732,16 +727,15 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-num-cat
 
-# Lab 2 Questions 10-13
+# Lab 2 Question 16
 
 ggplot(data = surveys,
-       mapping = aes(x = species, y = weight)) +
+       mapping = aes(x = weight, y = species)) +
   geom_boxplot(outliers = FALSE) +
   geom_jitter(alpha = 0.5, color = "orange3") +
-  labs(x = "Rodent Species", 
-       y = "Weight (grams)",
-        title = "Distribution of Rodent Weights by Species") +
-  theme(axis.text.x = element_text(angle = 45))
+  labs(x = "Weight (grams)", 
+       y = "Rodent Species",
+       title = "Distribution of Rodent Weights by Species")
 
 ```
 
@@ -752,7 +746,7 @@ ggplot(data = surveys,
 
 # Challenge 3 Question 2
 
-# REVISED: changed colors into Valkyries' official team colors :) and used labels_percent instead of percent_format
+# REVISED: changed colors into Valkyries' official team colors :) and used labels_percent instead of percent_format.
 
 ggplot(data = teacher_evals_compare,
        mapping = aes(x = sen_level, fill = set_level)) +
@@ -778,14 +772,25 @@ ggplot(data = teacher_evals_compare,
 
 # Challenge 4 Plot
 
-# REVISED: added a horizontal line to highlight the normalization baseline
+# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories. Also created an intermediate object to remove the nested functions.
+
+labels_data <- ca_normalized |> 
+  group_by(Type) |> 
+  slice_max(study_year)
 
 ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   geom_line(size = 1.2) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
   geom_point(size = 2) +
+  geom_text(
+    data = labels_data,
+    aes(label = round(value, 1)),
+    hjust = -0.2,
+    vjust = 0.5,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
-  scale_x_continuous(breaks = 2008:2018) +
+  scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
     "Center-based Cost" = "#1B9E77",  
     "Family-based Cost" = "#7570B3",
@@ -850,14 +855,25 @@ mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
 
 # Challenge 4 Plot
 
-# REVISED: added a horizontal line to highlight the normalization baseline
+# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories. Also created an intermediate object to remove the nested functions.
+
+labels_data <- ca_normalized |> 
+  group_by(Type) |> 
+  slice_max(study_year)
 
 ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   geom_line(size = 1.2) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
   geom_point(size = 2) +
+  geom_text(
+    data = labels_data,
+    aes(label = round(value, 1)),
+    hjust = -0.2,
+    vjust = 0.5,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
-  scale_x_continuous(breaks = 2008:2018) +
+  scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
     "Center-based Cost" = "#1B9E77",  
     "Family-based Cost" = "#7570B3",
@@ -876,6 +892,8 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
     legend.position = "bottom"
   )
 
+# Ask about comment here - what does it say?
+
 ```
 
 -   I can modify my plot titles to clearly communicate the data context
@@ -890,9 +908,9 @@ ggplot(data = surveys,
   geom_point(alpha = 0.5) +
   facet_wrap(~species, scales = "free")  +
   labs(x = "Weight (grams)", 
-       y = "", 
-       title = "Relationship between Hindfoot Length and Weight for Rodents",
-       subtitle = "Hindfoot Length (millimeters)")
+     y = "", 
+     title = "Relationship between Hindfoot Length and Weight for Rodents at Portal, AZ",
+     subtitle = "Hindfoot Length (millimeters)")
 
 ```
 
@@ -942,20 +960,20 @@ mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
 
 mcsa_plot_data <- ca_childcare |>
   select(c("census_region", "study_year", "mc_infant", "mc_toddler", "mc_preschool")) |>
-    pivot_longer(
-      cols = starts_with("mc_"),
-      names_to = "baby_type",
-      values_to = "cost"
-    ) |>
-      mutate(
-        baby_type = case_when(
-          baby_type == "mc_infant" ~ "Infant",
-          baby_type == "mc_toddler" ~ "Toddler",
-          baby_type == "mc_preschool" ~ "Preschool"
-        ), 
-        fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
-        census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
-      )
+  pivot_longer(
+    cols = starts_with("mc_"),
+    names_to = "baby_type",
+    values_to = "cost"
+  ) |>
+  mutate(
+    baby_type = fct_recode(baby_type,
+      "Infant" = "mc_infant",
+      "Toddler" = "mc_toddler",
+      "Preschool" = "mc_preschool"
+    ),
+    baby_type = fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
+    census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
+  )
 
 ```
 
@@ -968,14 +986,25 @@ mcsa_plot_data <- ca_childcare |>
 
 # Challenge 4 Plot
 
-# REVISED: added a horizontal line to highlight the normalization baseline
+# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories. Also created an intermediate object to remove the nested functions.
+
+labels_data <- ca_normalized |> 
+  group_by(Type) |> 
+  slice_max(study_year)
 
 ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   geom_line(size = 1.2) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
   geom_point(size = 2) +
+  geom_text(
+    data = labels_data,
+    aes(label = round(value, 1)),
+    hjust = -0.2,
+    vjust = 0.5,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
-  scale_x_continuous(breaks = 2008:2018) +
+  scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
     "Center-based Cost" = "#1B9E77",  
     "Family-based Cost" = "#7570B3",
@@ -1041,19 +1070,23 @@ mcsa_plot_data |> ggplot(mapping = aes(x = study_year,
 
 # Challenge 4 Plot
 
-# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories.
+# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories. Also created an intermediate object to remove the nested functions.
+
+labels_data <- ca_normalized |> 
+  group_by(Type) |> 
+  slice_max(study_year)
 
 ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   geom_line(size = 1.2) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
   geom_point(size = 2) +
   geom_text(
-  data = ca_normalized |> group_by(Type) |> slice_max(study_year),
-  aes(label = round(value, 1)),
-  hjust = -0.2,
-  vjust = 0.5,
-  show.legend = FALSE
-) +
+    data = labels_data,
+    aes(label = round(value, 1)),
+    hjust = -0.2,
+    vjust = 0.5,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
@@ -1081,16 +1114,25 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-3-3
 
-# Challenge 4 Plot
+# REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories. Also created an intermediate object to remove the nested functions.
 
-# REVISED: added a horizontal line to highlight the normalization baseline
+labels_data <- ca_normalized |> 
+  group_by(Type) |> 
+  slice_max(study_year)
 
 ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   geom_line(size = 1.2) +
   geom_hline(yintercept = 100, linetype = "dotted", color = "gray40", size = 1) +
   geom_point(size = 2) +
+  geom_text(
+    data = labels_data,
+    aes(label = round(value, 1)),
+    hjust = -0.2,
+    vjust = 0.5,
+    show.legend = FALSE
+  ) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
-  scale_x_continuous(breaks = 2008:2018) +
+  scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
     "Center-based Cost" = "#1B9E77",  
     "Family-based Cost" = "#7570B3",
@@ -1118,21 +1160,35 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-4-summarize
 
-# REVISED: combined slice_min and slice_max into one function
+# REVISED: changed bar plot from stacked to dodge, added the missing count above the bars, and added some more context to the title 
 
-# Lab 3 Question 12
+# Lab 7 Question 3
 
-teacher_evals_clean |>
-  filter(academic_degree %in% c("dr","prof"))|>
-    group_by(teacher_id) |>
-      summarize(
-        mean_resp_share = mean(resp_share, na.rm = TRUE),
-        degree = first(academic_degree),
-        seniority = first(seniority),
-        sex = first(sex)
-      ) |>
-        slice(c(which.min(mean_resp_share), which.max(mean_resp_share)))
-
+fish |>
+  mutate(has_missing = is.na(weight)) |>
+  group_by(year, section, trip) |>
+  summarize(
+    missing_count = sum(has_missing),
+    total_obs = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = factor(year), y = missing_count, fill = factor(trip))) +
+  geom_col(position = "dodge") +
+  geom_text(
+    aes(label = missing_count),
+    position = position_dodge(width = 0.9),
+    vjust = -0.5,
+    size = 3
+  ) +
+  facet_wrap(~ section) +
+  labs(
+    title = "Missing Values in Fish Measurements by Year, Section, and Trip",
+    subtitle = "Rainbow and brown trout measurements across the Blackfoot River, faceted by section",
+    x = "Year",
+    y = "Number of Missing Values",
+    fill = "Trip"
+  ) +
+  theme_bw()
 ```
 
 -   Example using `across()`
@@ -1140,28 +1196,13 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-4-across
 
-# Challenge 4 Table
+# Lab 7 Question 1
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
-
-ca_childcare |> 
-  filter(study_year %in% c(2008, 2018)) |> 
-  pivot_longer(
-    cols = c(center_cost, family_cost, median_income),
-    names_to = "Type",
-    values_to = "value"
-  ) |> 
-  pivot_wider(names_from = study_year, values_from = value) |> 
-  mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
-    `Absolute Change` = `2018` - `2008`,
-    `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+fish |>
+  summarize(
+    across(everything(), ~ sum(is.na(.)), .names = "missing_{.col}")
   ) |>
-    kable()
+  kable(caption = "Summary of Missing Values in Each Column")
 
 ```
 
@@ -1238,7 +1279,7 @@ ca_childcare |>
                       "family_cost" = "Family-based Cost",
                       "median_income" = "Household Income"),
     `Absolute Change` = `2018` - `2008`,
-    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    `Percent Change` = (`Absolute Change` / ` 2008`) * 100,
     across(-Type, round, 2)
   ) |>
     kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
@@ -1503,28 +1544,22 @@ make_label <- function(var) {
 ```{r}
 #| label: pe-3-across
 
-# Challenge 4 Table
+# Lab 7 Question 2
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
-
-ca_childcare |> 
-  filter(study_year %in% c(2008, 2018)) |> 
-  pivot_longer(
-    cols = c(center_cost, family_cost, median_income),
-    names_to = "Type",
-    values_to = "value"
-  ) |> 
-  pivot_wider(names_from = study_year, values_from = value) |> 
-  mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
-    `Absolute Change` = `2018` - `2008`,
-    `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+fish |>
+  summarize(
+    across(
+      .cols = everything(), 
+      .fns = ~ sum(is.na(.)),
+      .names = "missing_{.col}"
+    )
   ) |>
-    kable()
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "count"
+  ) |>
+  kable(caption = "Summary of Missing Values in Each Column")
 
 ```
 
