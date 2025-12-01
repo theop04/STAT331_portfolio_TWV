@@ -78,7 +78,7 @@ teacher_evals_clean  <- teacher_evals |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -89,13 +89,14 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2) # here
+    across(-Type, round, 2) #here
   ) |>
     kable()
 
@@ -156,7 +157,7 @@ teacher_evals_clean  <- teacher_evals |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -167,13 +168,14 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) 
   ) |>
     kable()
 
@@ -198,7 +200,6 @@ teacher_evals_clean |>
         sex = first(sex)
       ) |>
         slice(c(which.min(mean_resp_share), which.max(mean_resp_share)))
-
 
 ```
 
@@ -245,7 +246,7 @@ facebook_event_checkin |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -256,13 +257,14 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) 
   ) |>
     kable()
 
@@ -273,7 +275,13 @@ ca_childcare |>
 ```{r}
 #| label: wd-4-numeric-ex-2
 
-# Need smth else (maybe -- check previous too if cant find any)
+# Lab 10 Question 7
+
+lm_data <- broom::tidy(observed_data_lm,
+            conf.int = TRUE,
+            conf.level = 0.95)
+  
+  lm_data$cover <- as.integer(lm_data$conf.low <= beta1 & lm_data$conf.high >= beta1)
 
 ```
 
@@ -338,28 +346,39 @@ mcsa_plot_data <- ca_childcare |>
 ```{r}
 #| label: wd-4-string
 
-# REVISED: changed into using only one mutate function
+# Lab 8 Question 3
 
-# Lab 4 Question 4
 
-ca_childcare <- ca_childcare |> 
-  mutate(county_name = str_remove(county_name, " County"),
-         census_region = fct_collapse(
-          fct(county_name),
-          "Superior California" = superior_counties,
-          "North Coast" = north_coast_counties,
-          "San Francisco Bay Area" = san_fran_counties,
-          "Northern San Joaquin Valley" = n_san_joaquin_counties,
-          "Central Coast" = central_coast_counties,
-          "Southern San Joaquin Valley" = s_san_joaquin_counties,
-          "Inland Empire" = inland_counties,
-          "Los Angeles County" = la_county,
-          "Orange County" = orange_county,
-          "San Diego-Imperial" = san_diego_imperial_counties
-          )
-        )
+make_label <- function(var) {
+  replace_units <- c(" Mm" = " (mm)", " G" = " (g)")
+  var_label <- as_label(ensym(var))
+  var_label <- str_to_title(str_replace_all(var_label, "_", " "))
+  str_replace_all(var_label, replace_units)
+}
 
-# NEED TO REPLACE THIS ONE
+create_scatter <- function(df, x_var, y_var, color_var){
+  
+  x_label <- make_label({{x_var}})
+  y_label <- make_label({{y_var}})
+  color_label <- make_label({{color_var}})
+  
+    df |>
+    ggplot(
+      mapping = aes(x = {{x_var}}, 
+                    y = {{y_var}},
+                    color = {{color_var}}
+                    )
+    ) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE) +
+    labs(
+      title = plot_title,
+      x = x_label,
+      y = y_label,
+      color = color_label
+    ) +
+    theme_bw()
+}
 
 ```
 
@@ -506,7 +525,7 @@ gym_no_interview <- get_fit_now_member |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -517,13 +536,14 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) 
   ) |>
     kable()
 
@@ -536,7 +556,7 @@ ca_childcare |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -547,13 +567,14 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) 
   ) |>
     kable()
 
@@ -1114,6 +1135,8 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-3-3
 
+# Challenge 4 Plot
+
 # REVISED: added geom_text to my plot to highlight the final normalized values of each of the three categories. Also created an intermediate object to remove the nested functions.
 
 labels_data <- ca_normalized |> 
@@ -1215,7 +1238,7 @@ fish |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -1226,13 +1249,14 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) 
   ) |>
     kable()
 
@@ -1262,8 +1286,7 @@ teacher_evals_clean |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names.
-
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names and changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -1274,14 +1297,15 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
-    `Percent Change` = (`Absolute Change` / ` 2008`) * 100,
-    across(-Type, round, 2)
-  ) |>
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2) 
+  )  |>
     kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
 
 ```
@@ -1293,8 +1317,7 @@ ca_childcare |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names.
-
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed the column names and changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -1305,14 +1328,15 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
-  ) |>
+    across(-Type, round, 2) 
+  )  |>
     kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
 
 ```
@@ -1324,8 +1348,7 @@ ca_childcare |>
 
 # Challenge 4 Table
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
-
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns). Also changed recode to case_when.
 
 ca_childcare |> 
   filter(study_year %in% c(2008, 2018)) |> 
@@ -1336,15 +1359,16 @@ ca_childcare |>
   ) |> 
   pivot_wider(names_from = study_year, values_from = value) |> 
   mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
+    Type = case_when(
+      Type == "center_cost" ~ "Center-based Cost",
+      Type == "family_cost" ~ "Family-based Cost",
+      Type == "median_income" ~ "Household Income"
+    ),
     `Absolute Change` = `2018` - `2008`,
     `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
+    across(-Type, round, 2) 
   ) |>
-    kable(col.names = c("Type", "2008 Value", "2018 Value", "Absolute Change", "Percent Change"))
+    kable()
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -1356,6 +1380,36 @@ ca_childcare |>
 
 # Lab 9 Question 8
 
+fish |>
+  map_int(.f = ~ sum(is.na(.x))) |>
+  enframe(name = "Measurement Variable", value = "Missing Values") |>
+  gt() |>
+  tab_header(
+    title = "Number of Missing Values for Fish Measurements",
+    subtitle = "Data Collected from 1989 to 2006 on the Blackfoot Fish River in Montana"
+  )  |>
+  cols_align(
+    align = "left",
+    columns = `Measurement Variable`
+  ) |>
+  cols_align(
+    align = "right",
+    columns = `Missing Values`
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"),
+    locations = cells_column_labels()
+  ) |>
+  data_color(
+    columns = `Missing Values`,
+    fn = function(x) {
+      ifelse(x == 0, "#4ECDC4", "#F4A460") 
+    }
+  )
 
 
 ```
@@ -1460,6 +1514,16 @@ ca_childcare |>
 #| label: pe-1-map-1
 
 # Lab 9 Question 4
+
+evals <- evals |>
+  mutate(
+      sen_level  = case_when(seniority <= 4 ~ "Junior",
+                         (seniority > 4) ~ "Senior")
+  ) |>
+  filter(no_participants >= 10) |>
+  distinct(teacher_id, .keep_all = TRUE) |>
+  map_if(.p = is.character, .f = ~ as.factor(.x)) |>
+  bind_cols()
 
 
 ```
@@ -1569,6 +1633,18 @@ fish |>
 #| label: pe-3-map-1
 
 # Lab 9 Question 7
+
+fish |>
+  map_int(.f = ~ sum(is.na(.x))) |>
+  enframe(name = "Measurement Variable", value = "Missing Values") |>
+  kable(
+    caption = "Number of Missing Values by Variable in Fish Dataset",
+    align = c("l", "r")
+  ) |>
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    full_width = FALSE
+  )
 
 ```
 
