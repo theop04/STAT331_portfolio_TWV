@@ -1,21 +1,28 @@
 ---
 title: "Lightening Round Essays"
+author: "Theodore Weicker"
 format: html
 editor: visual
 ---
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If \[Name of Student\] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.\
+    \
+    If Abel Magallon doesn’t earn an A, then nobody should, because of the combination of his work produced and his attitude. He was a great class mate, as well as a great peer during the peer coding activity. The assignment I peer reviewed of his was superb as well.
 
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.\
+    \
+    The most challenging part of the class for me was the creative aspect of the course. There were a lot of opportunities to add a personal touch to assignments; however, due to this, I think this is also where I grew the most, as I pushed myself to make the assignments more of a reflection of me, which I really enjoyed.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+3.  What was the easiest part of the class for you? Explain why.\
+    \
+    The easiest part of the course was probably the functions section, despite it probably being considered one of the more challenging parts. This is purely due to my CS and coding background, as this is typically how I write code (and even think :) ).
 
+4.  What part of the class surprised or interested you the most? Explain why.\
+    \
+    The most interesting part of the class was definitely making cool plots. I am a perfectionist in my work, which is a blessing and a curse, because I typically try to do my best work for every assignment, however, there are SO many layers in R plots and tables that can be continuously added on, so it took a long time to be satisfied with my work.
 
-3. What was the easiest part of the class for you? Explain why.
-
-
-4. What part of the class surprised or interested you the most? Explain why.
-
-
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.\
+    \
+    Definitely to start labs as soon as possible, and not waiting till close to the due date. I think that is a common thing I see in other CS classes, where a lot of students typically start their projects too late, but for STAT331 in particular it is extremely important. Similarly to writing a creative essay, being able to think about and refine an essay over 3-5 sessions will almost guaranteed result in better work than one or two crammed sessions.
