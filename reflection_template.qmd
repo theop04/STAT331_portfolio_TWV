@@ -47,7 +47,14 @@ surveys <- read_csv(here::here("Week 2", "Lab 2","surveys.csv"))
 ```{r}
 #| label: wd-1-xlsx
 
-# need to find??
+# PA-4
+
+military <- read_xlsx("gov_spending_per_capita.xlsx",
+                      sheet = "Share of Govt. spending",
+                      skip  = 7,
+                      n_max = 191,
+                      na = c(". .", "xxx", "..")
+                      )
 
 ```
 
@@ -275,13 +282,15 @@ ca_childcare |>
 ```{r}
 #| label: wd-4-numeric-ex-2
 
+# Revised: changed to using mutate from "$" operator
+
 # Lab 10 Question 7
 
-lm_data <- broom::tidy(observed_data_lm,
+lm_data <- tidy(observed_data_lm,
             conf.int = TRUE,
-            conf.level = 0.95)
-  
-  lm_data$cover <- as.integer(lm_data$conf.low <= beta1 & lm_data$conf.high >= beta1)
+            conf.level = 0.95)|>
+  mutate(cover = ifelse(slope >= conf.low & slope <= conf.high, 1, 0)) |>
+  gt()
 
 ```
 
@@ -512,7 +521,6 @@ get_fit_now_member |>
 gym_no_interview <- get_fit_now_member |>
   anti_join(interview, by = c("id" = "person_id"))
 
-# maybe find a diff example?
 
 ```
 
@@ -593,7 +601,7 @@ The following assignments satisfy the above criteria:
 -   Challenge 2
 -   Lab 2 (revised to use relative path)
 -   Lab 8
--   (maybe 9/10?)
+-   Lab 10 (fully revised :) )
 
 **R-2: I can write well documented and tidy code.**
 
@@ -1219,11 +1227,20 @@ fish |>
 ```{r}
 #| label: dvs-4-across
 
-# Lab 7 Question 1
+# Lab 7 Question 2
 
 fish |>
   summarize(
-    across(everything(), ~ sum(is.na(.)), .names = "missing_{.col}")
+    across(
+      .cols = everything(), 
+      .fns = ~ sum(is.na(.)),
+      .names = "missing_{.col}"
+    )
+  ) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "count"
   ) |>
   kable(caption = "Summary of Missing Values in Each Column")
 
@@ -1483,28 +1500,26 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-across
 
-# Challenge 4 Table
+# Lab 8 Question 1
 
-# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+rescale_01 <- function(x){
+  stopifnot(is.numeric(x), length(x) > 1)
+  rng <- range(x, na.rm = TRUE, finite = TRUE)
+  (x - rng[1] ) / (rng[2] - rng[1])
+}
 
-ca_childcare |> 
-  filter(study_year %in% c(2008, 2018)) |> 
-  pivot_longer(
-    cols = c(center_cost, family_cost, median_income),
-    names_to = "Type",
-    values_to = "value"
-  ) |> 
-  pivot_wider(names_from = study_year, values_from = value) |> 
-  mutate(
-    Type = recode(Type,
-                      "center_cost" = "Center-based Cost",
-                      "family_cost" = "Family-based Cost",
-                      "median_income" = "Household Income"),
-    `Absolute Change` = `2018` - `2008`,
-    `Percent Change` = (`Absolute Change` / `2008`) * 100,
-    across(-Type, round, 2)
-  ) |>
-    kable()
+rescale_column <- function(df, cols){
+  if(!is.data.frame(df)) {
+    stop("Input needs to be a data frame")
+  }
+  
+  df |> 
+    mutate(
+      across(.cols = {{ cols }}, 
+             .fns = ~ rescale_01(.x)
+             )
+      )
+}
 
 ```
 
@@ -1535,27 +1550,13 @@ evals <- evals |>
 ```{r}
 #| label: pe-2-1
 
-# Lab 8 Question 4
+# Lab 8 Question 3
 
-library(RColorBrewer)
-
-style_plot <- function(plot, 
-                       theme_fn = theme_bw, 
-                       palette = brewer.pal(8, "Accent"), 
-                       aesthetic = "fill"){
-  
-  if(!aesthetic %in% c("fill", "color")) {
-    stop("`aesthetic` must be either 'fill' or 'color'.")
-  }
-  
-  plot <- plot + theme_fn()
-  
-  if (aesthetic == "fill") {
-    plot <- plot + scale_fill_manual(values = palette)
-  } else {
-    plot <- plot + scale_color_manual(values = palette)
-  }
-  return(plot)
+make_label <- function(var) {
+  replace_units <- c(" Mm" = " (mm)", " G" = " (g)")
+  var_label <- as_label(ensym(var))
+  var_label <- str_to_title(str_replace_all(var_label, "_", " "))
+  str_replace_all(var_label, replace_units)
 }
 
 
@@ -1589,13 +1590,52 @@ pivot_table <- function(df, row_var, col_var){
 ```{r}
 #| label: pe-2-3
 
-# Lab 8 Question 3
+# Lab 10 Question 8
 
-make_label <- function(var) {
-  replace_units <- c(" Mm" = " (mm)", " G" = " (g)")
-  var_label <- as_label(ensym(var))
-  var_label <- str_to_title(str_replace_all(var_label, "_", " "))
-  str_replace_all(var_label, replace_units)
+# Revised: added input validation and changed to using the mutate function rather than the "$" operator.
+
+mycifun <- function(beta0, beta1, n){
+  
+  #input validation
+  if (!is.numeric(beta0) || length(beta0) != 1) {
+    stop("beta0 must be a single numeric value.")
+  }
+  
+  if (!is.numeric(beta1) || length(beta1) != 1) {
+    stop("beta1 must be a single numeric value.")
+  }
+  
+  if (!is.numeric(n) || length(n) != 1) {
+    stop("n must be a single numeric value.")
+  }
+  
+  if (n <= 0 || n != as.integer(n)) {
+    stop("n must be a positive integer.")
+  }
+
+  x = runif(n = n, min = 0, max = 1)
+  
+  # generate noise `ep` vector
+  ep = rnorm(n = n, mean = 0, sd = 1)
+  
+  # generate outcome from population model
+  y = beta0 + x*beta1 + ep
+  
+  
+  # create an "observed data" dataframe with only the x and y vectors
+  
+  observed_data <- data.frame(x, y)
+  
+  observed_data_lm <- lm(y ~ x,
+                       data = observed_data)
+  
+  lm_data <- tidy(observed_data_lm,
+            conf.int = TRUE,
+            conf.level = 0.95) |>
+  filter(term == "x") |>
+  select(estimate, conf.low, conf.high)  |>   
+    mutate(cover = ifelse(beta1 >= conf.low & beta1 <= conf.high, 1, 0))
+  
 }
 
 
@@ -1608,22 +1648,28 @@ make_label <- function(var) {
 ```{r}
 #| label: pe-3-across
 
-# Lab 7 Question 2
+# Challenge 4 Table
 
-fish |>
-  summarize(
-    across(
-      .cols = everything(), 
-      .fns = ~ sum(is.na(.)),
-      .names = "missing_{.col}"
-    )
-  ) |>
+# REVISED: combined the two mutate functions in the end into one (added the rounding step into the same mutate as the new columns)
+
+ca_childcare |> 
+  filter(study_year %in% c(2008, 2018)) |> 
   pivot_longer(
-    cols = everything(),
-    names_to = "variable",
-    values_to = "count"
+    cols = c(center_cost, family_cost, median_income),
+    names_to = "Type",
+    values_to = "value"
+  ) |> 
+  pivot_wider(names_from = study_year, values_from = value) |> 
+  mutate(
+    Type = recode(Type,
+                      "center_cost" = "Center-based Cost",
+                      "family_cost" = "Family-based Cost",
+                      "median_income" = "Household Income"),
+    `Absolute Change` = `2018` - `2008`,
+    `Percent Change` = (`Absolute Change` / `2008`) * 100,
+    across(-Type, round, 2)
   ) |>
-  kable(caption = "Summary of Missing Values in Each Column")
+    kable()
 
 ```
 
@@ -1648,12 +1694,30 @@ fish |>
 
 ```
 
--   using a `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
+-   using a `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.), number 2
 
 ```{r}
-#| label: pe-3-map-2
+#| label: pe-3-map-1-2
 
-# Make one up? ask teacher
+# Lab 9 Question 3
+
+# REVISED: Standardized capitalization in data types and added context in subtitle
+
+surveys |>
+  map_chr(.f = ~ class(.x)) |>
+  enframe(name = "Variable", value = "Data Type") |>
+  mutate(`Data Type` = str_to_title(`Data Type`)) |>
+  arrange(`Data Type`) |>
+  gt() |>
+  tab_header(
+    title = "Data Types of Variables in the Surveys Dataset",
+    subtitle = "Portal Project: long-term monitoring of small mammals in Arizona (since 1977)"
+  ) |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) |>
+  opt_row_striping()
 
 ```
 
@@ -1748,6 +1812,53 @@ ca_childcare |>
 
 # Lab 10 Question 8
 
+# Revised: added input validation and changed to using the mutate function rather than the "$" operator.
+
+mycifun <- function(beta0, beta1, n){
+  
+  #input validation
+  if (!is.numeric(beta0) || length(beta0) != 1) {
+    stop("beta0 must be a single numeric value.")
+  }
+  
+  if (!is.numeric(beta1) || length(beta1) != 1) {
+    stop("beta1 must be a single numeric value.")
+  }
+  
+  if (!is.numeric(n) || length(n) != 1) {
+    stop("n must be a single numeric value.")
+  }
+  
+  if (n <= 0 || n != as.integer(n)) {
+    stop("n must be a positive integer.")
+  }
+
+  x = runif(n = n, min = 0, max = 1)
+  
+  # generate noise `ep` vector
+  ep = rnorm(n = n, mean = 0, sd = 1)
+  
+  # generate outcome from population model
+  y = beta0 + x*beta1 + ep
+  
+  
+  # create an "observed data" dataframe with only the x and y vectors
+  
+  observed_data <- data.frame(x, y)
+  
+  observed_data_lm <- lm(y ~ x,
+                       data = observed_data)
+  
+  lm_data <- tidy(observed_data_lm,
+            conf.int = TRUE,
+            conf.level = 0.95) |>
+  filter(term == "x") |>
+  select(estimate, conf.low, conf.high)  |>   
+    mutate(cover = ifelse(beta1 >= conf.low & beta1 <= conf.high, 1, 0))
+  
+}
+
+
 ```
 
 -   Example 2
@@ -1756,6 +1867,18 @@ ca_childcare |>
 #| label: dsm-1-2
 
 # Lab 10 Question 1
+
+randomBabies <- function(n_babies){
+  
+  correct <- 1:n_babies
+  sampled <- sample(n_babies)  
+  sum(correct == sampled)
+}
+
+set.seed(1234)
+results <- map_int(.x = 1:10000,
+                   .f = ~ randomBabies(4)
+                  )
 
 ```
 
