@@ -396,7 +396,7 @@ create_scatter <- function(df, x_var, y_var, color_var){
 ```{r}
 #| label: wd-4-date
 
-# REVISED: converted to lubridate format from stadard integer date
+# REVISED: converted to lubridate format from standard integer date
 
 # Lab 5 filtering
 
@@ -655,8 +655,6 @@ create_scatter <- function(df, x_var, y_var, color_var){
   y_label <- make_label({{y_var}})
   color_label <- make_label({{color_var}})
   
-  
-  
   plot_title <- rlang::englue("Scatterplot of {x_label} vs. {y_label}, colored by {color_label}")
   
   df |>
@@ -821,9 +819,9 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
-    "Center-based Cost" = "#1B9E77",  
-    "Family-based Cost" = "#7570B3",
-    "Household Income" = "#E7298A"  
+    "Center-based Cost" = "#0072B2",  
+    "Family-based Cost" = "#E69F00",
+    "Household Income" = "#009E73"  
   )) +
   labs(
     title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
@@ -904,9 +902,9 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
-    "Center-based Cost" = "#1B9E77",  
-    "Family-based Cost" = "#7570B3",
-    "Household Income" = "#E7298A"  
+    "Center-based Cost" = "#0072B2",  
+    "Family-based Cost" = "#E69F00",
+    "Household Income" = "#009E73"  
   )) +
   labs(
     title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
@@ -1000,7 +998,7 @@ mcsa_plot_data <- ca_childcare |>
     ),
     baby_type = fct_relevel(baby_type, "Infant", "Toddler", "Preschool"),
     census_region = fct_reorder2(census_region, study_year, cost, .desc = TRUE)
-  )
+  ) # plot logic cut off for clarity - same as code above :)
 
 ```
 
@@ -1033,9 +1031,9 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
-    "Center-based Cost" = "#1B9E77",  
-    "Family-based Cost" = "#7570B3",
-    "Household Income" = "#E7298A"  
+    "Center-based Cost" = "#0072B2",  
+    "Family-based Cost" = "#E69F00",
+    "Household Income" = "#009E73" 
   )) +
   labs(
     title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
@@ -1117,9 +1115,9 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
-    "Center-based Cost" = "#1B9E77",  
-    "Family-based Cost" = "#7570B3",
-    "Household Income" = "#E7298A"  
+    "Center-based Cost" = "#0072B2",  
+    "Family-based Cost" = "#E69F00",
+    "Household Income" = "#009E73"  
   )) +
   labs(
     title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
@@ -1163,9 +1161,9 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
   scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   scale_x_continuous(breaks = 2008:2018, limits = c(2008, 2019)) +
   scale_color_manual(values = c(
-    "Center-based Cost" = "#1B9E77",  
-    "Family-based Cost" = "#7570B3",
-    "Household Income" = "#E7298A"  
+    "Center-based Cost" = "#0072B2",  
+    "Family-based Cost" = "#E69F00",
+    "Household Income" = "#009E73"  
   )) +
   labs(
     title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
@@ -1189,7 +1187,7 @@ ggplot(ca_normalized, aes(x = study_year, y = value, color = Type)) +
 ```{r}
 #| label: dvs-4-summarize
 
-# REVISED: changed bar plot from stacked to dodge, added the missing count above the bars, and added some more context to the title 
+# REVISED: changed bar plot from stacked to dodge, added the missing count above the bars, and added some more context to the title (all improvements to make plot more clear and accurate)
 
 # Lab 7 Question 3
 
@@ -1776,9 +1774,9 @@ ca_childcare |>
     scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
     scale_x_continuous(breaks = 2008:2018) +
     scale_color_manual(values = c(
-      "Center-based Cost" = "#1B9E77",  
-      "Family-based Cost" = "#7570B3",
-      "Household Income" = "#E7298A"  
+      "Center-based Cost" = "#0072B2",  
+      "Family-based Cost" = "#E69F00",
+      "Household Income" = "#009E73"  
     )) +
     labs(
       title = "Growth of Childcare Costs vs Household Income in California (2008–2018)",
@@ -1922,7 +1920,7 @@ Throughout the course, whenever I received a "Growing" on a Lab or Challenge (an
 
 <!-- How did you extend your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? Be specific -->
 
-In every assignment, for each question, I made sure to build a mental roadmap of a potential pipeline that would solve the problem as efficiently as possible. I made sure to always go above and beyond on the challenges, especially the ones that were open to interpretation, like challenge 2 and challenge 4 (receiving exemplary challenges for both). My favorite example was challenge 4, as I tried to make a realistic and professional report, answering a research question I was genuinely interested in, and in the end, came to a very interesting conclusion through both my table and graph.
+In every assignment, for each question, I made sure to build a mental roadmap of a potential pipeline that would solve the problem as efficiently as possible. I made sure to always go above and beyond on the challenges, especially the ones that were open to interpretation, like challenge 2 and challenge 4 (receiving exemplary challenges for both). My favorite example was challenge 4, as I tried to make a realistic and professional report, answering a research question I was genuinely interested in, and in the end, came to a very interesting conclusion through both my table and graph. I continued this trend after the midterm portfolio as well, receiving multiple exemplary submissions.
 
 ## Peer Support & Collaboration
 
@@ -1944,7 +1942,7 @@ Note: Another peer review of mine I liked a lot is the one for Lab 7, but I won'
 
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
 
-Throughout the pair-programming practice activities, I always followed the guidelines and rules of two distinct roles. When I was the typer, I made sure to only listen to my peer, asking clarifying questions when needed. When my partner was the typer, I tried to express my thoughts in a way that was as unambiguous as possible.
+Throughout the pair-programming practice activities, I always followed the guidelines and rules of the two distinct roles. When I was the typer, I made sure to only listen to my peer, asking clarifying questions when needed. When my partner was the typer, I tried to express my thoughts in a way that was as unambiguous as possible.
 
 Both of these were difficult to do initially, as I had to hold myself back from coding the solution that I had thought of, as well as explaining my thoughts verbally as code. Especially the first one was difficult, as I am used to working independently on coding assignments in my other classes, but I also think that is where I grew the most. Frequently, my peer would have a different approach to the problem, and more often than not it would work, and I would learn something new.
 
